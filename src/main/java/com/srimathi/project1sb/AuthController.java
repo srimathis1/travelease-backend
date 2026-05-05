@@ -1,57 +1,39 @@
-package com.srimathi.project1sb;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+package com.srimathi.project1sb.controller;
 
 import com.srimathi.project1sb.model.User;
 import com.srimathi.project1sb.repository.UserRepository;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-import java.util.Optional;
+import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/auth")
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
 
-    private final UserRepository userRepo;
+    private final UserRepository userRepository;
 
-    public AuthController(UserRepository userRepo) {
-        this.userRepo = userRepo;
+    public AuthController(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     // ✅ REGISTER
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-
-        // check username
-        if (userRepo.findByUsername(user.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body("Username already exists ❌");
-        }
-
-        // check email
-        if (userRepo.findByEmail(user.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email already exists ❌");
-        }
-
-        user.setRole("USER");
-
-        return ResponseEntity.ok(userRepo.save(user));
+    public User register(@RequestBody User user) {
+        return userRepository.save(user);
     }
 
     // ✅ LOGIN
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> data) {
+    public User login(@RequestBody User user) {
+        return userRepository.findByUsername(user.getUsername())
+                .filter(u -> u.getPassword().equals(user.getPassword()))
+                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+    }
 
-        String username = data.get("username");
-        String password = data.get("password");
-
-        Optional<User> user = userRepo.findByUsername(username);
-
-        if (user.isPresent() && user.get().getPassword().equals(password)) {
-            return ResponseEntity.ok(user.get());
-        }
-
-        return ResponseEntity.status(401).body("Invalid credentials ❌");
+    // ✅ GET USERS (optional)
+    @GetMapping("/all")
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }

@@ -11,9 +11,11 @@ public class Route {
 
     private String source;
     private String destination;
-    private double price;
-    private int availableSeats;
     private String transportType;
+    private int price;
+    private int availableSeats;
+
+    public Route() {}
 
     public Long getId() { return id; }
 
@@ -23,12 +25,12 @@ public class Route {
     public String getDestination() { return destination; }
     public void setDestination(String destination) { this.destination = destination; }
 
-    public double getPrice() { return price; }
-    public void setPrice(double price) { this.price = price; }
+    public String getTransportType() { return transportType; }
+    public void setTransportType(String transportType) { this.transportType = transportType; }
+
+    public int getPrice() { return price; }
+    public void setPrice(int price) { this.price = price; }
 
     public int getAvailableSeats() { return availableSeats; }
     public void setAvailableSeats(int availableSeats) { this.availableSeats = availableSeats; }
-
-    public String getTransportType() { return transportType; }
-    public void setTransportType(String transportType) { this.transportType = transportType; }
 }

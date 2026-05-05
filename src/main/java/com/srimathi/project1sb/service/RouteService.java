@@ -4,44 +4,50 @@ import com.srimathi.project1sb.model.Route;
 import com.srimathi.project1sb.repository.RouteRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class RouteService {
 
-    private final RouteRepository repo;
+    private final RouteRepository routeRepository;
 
-    public RouteService(RouteRepository repo) {
-        this.repo = repo;
-    }
-
-    public Route addRoute(Route route) {
-        return repo.save(route);
+    public RouteService(RouteRepository routeRepository) {
+        this.routeRepository = routeRepository;
     }
 
     public List<Route> getAllRoutes() {
-        return repo.findAll();
+        return routeRepository.findAll();
     }
 
-    public List<Route> smartSearch(String source, String destination, double budget, String preference) {
+    public Route addOrUpdateRoute(Route route) {
 
-        List<Route> list = repo.findAll().stream()
-                .filter(r -> r.getSource().equalsIgnoreCase(source))
-                .filter(r -> r.getDestination().equalsIgnoreCase(destination))
-                .filter(r -> r.getPrice() <= budget)
-                .collect(Collectors.toList());
+        // 🔥 Normalize input
+        route.setSource(route.getSource().trim().toLowerCase());
+        route.setDestination(route.getDestination().trim().toLowerCase());
+        route.setTransportType(route.getTransportType().trim().toLowerCase());
 
-        if (preference.equalsIgnoreCase("cheapest")) {
-            list.sort(Comparator.comparing(Route::getPrice));
+        Optional<Route> existing = routeRepository.findExistingRoute(
+                route.getSource(),
+                route.getDestination(),
+                route.getTransportType()
+        );
+
+        if (existing.isPresent()) {
+
+            Route r = existing.get();
+
+            // 🔥 UPDATE seats
+            r.setAvailableSeats(r.getAvailableSeats() + route.getAvailableSeats());
+
+            return routeRepository.save(r);
+
+        } else {
+            return routeRepository.save(route);
         }
-
-        return list;
     }
 
-    public Route getBestSuggestion(String source, String destination, double budget) {
-        List<Route> list = smartSearch(source, destination, budget, "cheapest");
-        return list.isEmpty() ? null : list.get(0);
+    public void deleteRoute(Long id) {
+        routeRepository.deleteById(id);
     }
 }
