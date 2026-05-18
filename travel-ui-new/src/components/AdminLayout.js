@@ -5,16 +5,26 @@ import AdminSidebar from "./AdminSidebar";
 function AdminLayout() {
 
     return (
-        <div style={{ display: "flex" }}>
-
-            {/* SIDEBAR */}
+        <div
+            style={{
+                display: "flex",
+                minHeight: "100vh",
+                background: "#f4f5fa"
+            }}
+        >
+            {/* LEFT SIDEBAR */}
             <AdminSidebar />
 
-            {/* CONTENT */}
-            <div style={{ flex: 1, padding: "20px" }}>
-                <Outlet />   {/* 🔥 THIS IS CRITICAL */}
+            {/* RIGHT CONTENT */}
+            <div
+                style={{
+                    flex: 1,
+                    padding: "30px",
+                    overflowY: "auto"
+                }}
+            >
+                <Outlet />
             </div>
-
         </div>
     );
 }

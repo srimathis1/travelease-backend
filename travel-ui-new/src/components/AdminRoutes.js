@@ -1,117 +1,296 @@
-import React, { useEffect, useState } from "react";
+import React, {
+    useEffect,
+    useState
+} from "react";
+
 import "./AdminRoutes.css";
 
 function AdminRoutes() {
 
-    const [routes, setRoutes] = useState([]);
+    const [vehicles,
+        setVehicles] =
+        useState([]);
 
-    const [form, setForm] = useState({
-        source: "",
-        destination: "",
-        transportType: "",
-        price: "",
-        availableSeats: ""
-    });
+    const [form,
+        setForm] =
+        useState({
 
-    // 🔥 LOAD ROUTES FROM BACKEND
-    const fetchRoutes = () => {
-        fetch("http://localhost:8080/route/all")
-            .then(res => res.json())
-            .then(data => {
-                console.log("ROUTES:", data); // DEBUG
-                setRoutes(data);
-            });
+            source: "",
+            destination: "",
+            vehicleType: "",
+            departureTime: "",
+            departureDate: "",
+            price: ""
+        });
+
+    // =========================
+    // LOAD VEHICLES
+    // =========================
+
+    const fetchVehicles = () => {
+
+        fetch(
+            "http://localhost:8080/vehicles"
+        )
+            .then((res) =>
+                res.json()
+            )
+
+            .then((data) => {
+
+                setVehicles(data);
+
+            })
+
+            .catch((err) =>
+                console.log(err)
+            );
     };
 
     useEffect(() => {
-        fetchRoutes();
+
+        fetchVehicles();
+
     }, []);
 
-    // 🔥 HANDLE INPUT
+    // =========================
+    // HANDLE INPUT
+    // =========================
+
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
 
-    // 🔥 ADD ROUTE
-    const handleSubmit = (e) => {
-        e.preventDefault();
+        setForm({
 
-        fetch("http://localhost:8080/route/add", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(form)
-        }).then(() => {
-            fetchRoutes(); // reload
-            setForm({
-                source: "",
-                destination: "",
-                transportType: "",
-                price: "",
-                availableSeats: ""
-            });
+            ...form,
+
+            [e.target.name]:
+            e.target.value
         });
     };
 
-    // 🔥 DELETE ROUTE
-    const deleteRoute = (id) => {
-        fetch(`http://localhost:8080/route/${id}`, {
-            method: "DELETE"
-        }).then(fetchRoutes);
+    // =========================
+    // ADD VEHICLE
+    // =========================
+
+    const handleSubmit = async (e) => {
+
+        e.preventDefault();
+
+        try {
+
+            const res = await fetch(
+                "http://localhost:8080/vehicles",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(form)
+                }
+            );
+
+            if (!res.ok)
+                throw new Error();
+
+            alert(
+                "✅ Trip Added Successfully"
+            );
+
+            fetchVehicles();
+
+            setForm({
+
+                source: "",
+
+                destination: "",
+
+                vehicleType: "",
+
+                departureTime: "",
+
+                departureDate: "",
+
+                price: ""
+            });
+
+        } catch {
+
+            alert(
+                "❌ Failed to Add Trip"
+            );
+        }
+    };
+
+    // =========================
+    // DELETE VEHICLE
+    // =========================
+
+    const deleteVehicle = async (id) => {
+
+        try {
+
+            await fetch(
+
+                `http://localhost:8080/vehicles/${id}`,
+
+                {
+                    method: "DELETE"
+                }
+            );
+
+            fetchVehicles();
+
+        } catch {
+
+            alert(
+                "❌ Delete Failed"
+            );
+        }
     };
 
     return (
+
         <div className="routes-container">
 
-            <h2>🚀 Manage Routes</h2>
+            <h2>
+                🚗 Manage Trips
+            </h2>
 
             {/* FORM */}
-            <form className="route-form" onSubmit={handleSubmit}>
-                <input name="source" placeholder="Source" value={form.source} onChange={handleChange}/>
-                <input name="destination" placeholder="Destination" value={form.destination} onChange={handleChange}/>
-                <input name="transportType" placeholder="Train / Flight" value={form.transportType} onChange={handleChange}/>
-                <input type="number" name="price" placeholder="Price" value={form.price} onChange={handleChange}/>
-                <input type="number" name="availableSeats" placeholder="Seats" value={form.availableSeats} onChange={handleChange}/>
 
-                <button type="submit">Add Route</button>
+            <form
+                className="route-form"
+                onSubmit={handleSubmit}
+            >
+
+                <input
+                    name="source"
+                    placeholder="Source"
+                    value={form.source}
+                    onChange={handleChange}
+                />
+
+                <input
+                    name="destination"
+                    placeholder="Destination"
+                    value={form.destination}
+                    onChange={handleChange}
+                />
+
+                <input
+                    name="vehicleType"
+                    placeholder="Car / Bus"
+                    value={form.vehicleType}
+                    onChange={handleChange}
+                />
+
+                <input
+                    name="departureTime"
+                    placeholder="Departure Time"
+                    value={form.departureTime}
+                    onChange={handleChange}
+                />
+
+                <input
+                    type="date"
+                    name="departureDate"
+                    value={form.departureDate}
+                    onChange={handleChange}
+                />
+
+                <input
+                    type="number"
+                    name="price"
+                    placeholder="Price"
+                    value={form.price}
+                    onChange={handleChange}
+                />
+
+                <button type="submit">
+                    Add Trip
+                </button>
+
             </form>
 
             {/* TABLE */}
+
             <table className="routes-table">
+
                 <thead>
+
                 <tr>
                     <th>ID</th>
                     <th>Source</th>
                     <th>Destination</th>
-                    <th>Type</th>
+                    <th>Vehicle</th>
+                    <th>Time</th>
+                    <th>Date</th>
                     <th>Price</th>
-                    <th>Seats</th>
+                    <th>Status</th>
                     <th>Action</th>
                 </tr>
+
                 </thead>
 
                 <tbody>
-                {routes.length === 0 ? (
+
+                {vehicles.length === 0 ? (
+
                     <tr>
-                        <td colSpan="7">No routes available</td>
+                        <td colSpan="9">
+                            No Trips Available
+                        </td>
                     </tr>
+
                 ) : (
-                    routes.map(r => (
-                        <tr key={r.id}>
-                            <td>{r.id}</td>
-                            <td>{r.source}</td>
-                            <td>{r.destination}</td>
-                            <td>{r.transportType}</td>
-                            <td>₹{r.price}</td>
-                            <td>{r.availableSeats}</td>
+
+                    vehicles.map((v) => (
+
+                        <tr key={v.id}>
+
+                            <td>{v.id}</td>
+
+                            <td>{v.source}</td>
+
+                            <td>{v.destination}</td>
+
+                            <td>{v.vehicleType}</td>
+
+                            <td>{v.departureTime}</td>
+
+                            <td>{v.departureDate}</td>
+
+                            <td>₹{v.price}</td>
+
                             <td>
-                                <button onClick={() => deleteRoute(r.id)}>
+                                {v.booked
+                                    ? "Booked"
+                                    : "Available"}
+                            </td>
+
+                            <td>
+
+                                <button
+                                    className="delete-btn"
+                                    onClick={() =>
+                                        deleteVehicle(v.id)
+                                    }
+                                >
                                     Delete
                                 </button>
+
                             </td>
+
                         </tr>
                     ))
                 )}
+
                 </tbody>
+
             </table>
 
         </div>
