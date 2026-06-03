@@ -6,6 +6,9 @@ import React, {
 import UserSidebar
     from "./UserSidebar";
 
+import AnalyticsBoard
+    from "./AnalyticsBoard";
+
 function UserDashboard() {
 
     const storedUser =
@@ -15,75 +18,52 @@ function UserDashboard() {
             )
         );
 
-    const [vehicles,
-        setVehicles] =
-        useState([]);
+    const [
+        vehicles,
+        setVehicles
+    ] = useState([]);
 
-    const [search,
-        setSearch] =
-        useState("");
+    const [
+        search,
+        setSearch
+    ] = useState("");
 
-    const [bookingDetails,
-        setBookingDetails] =
-        useState({});
-
-    const [analytics,
-        setAnalytics] =
-        useState({
-            totalTrips: 0,
-            totalBookings: 0,
-            totalFeedbacks: 0,
-            mostBookedPlace: "-",
-            topRatedPlace: "-"
-        });
-
-    // =====================
-    // LOAD DATA
-    // =====================
+    const [
+        bookingDetails,
+        setBookingDetails
+    ] = useState({});
 
     useEffect(() => {
 
         fetch(
             "http://localhost:8080/vehicles"
         )
-            .then((res) =>
-                res.json()
+            .then(
+                (res) =>
+                    res.json()
             )
-            .then((data) => {
+            .then(
+                (data) => {
 
-                const activeTrips =
-                    data.filter(
-                        (v) =>
-                            !v.booked
+                    const activeTrips =
+                        data.filter(
+                            (
+                                v
+                            ) =>
+                                !v.booked
+                        );
+
+                    setVehicles(
+                        activeTrips
                     );
-
-                setVehicles(
-                    activeTrips
-                );
-            });
-
-        fetch(
-            "http://localhost:8080/analytics/dashboard"
-        )
-            .then((res) =>
-                res.json()
-            )
-            .then((data) =>
-                setAnalytics(
-                    data
-                )
-            )
-            .catch(() =>
-                console.log(
-                    "Analytics failed"
-                )
+                }
             );
 
     }, []);
 
-    // =====================
+    // ==================
     // HANDLE INPUT
-    // =====================
+    // ==================
 
     const handleInputChange =
         (
@@ -94,6 +74,7 @@ function UserDashboard() {
 
             setBookingDetails(
                 (prev) => ({
+
                     ...prev,
 
                     [vehicleId]: {
@@ -109,9 +90,9 @@ function UserDashboard() {
             );
         };
 
-    // =====================
-    // BOOKING FIXED
-    // =====================
+    // ==================
+    // BOOKING
+    // ==================
 
     const handleBooking =
         async (
@@ -173,10 +154,6 @@ function UserDashboard() {
             }
         };
 
-    // =====================
-    // SEARCH
-    // =====================
-
     const filteredVehicles =
         vehicles.filter(
 
@@ -216,94 +193,35 @@ function UserDashboard() {
 
             <div
                 style={{
-                    flex: 1,
                     marginLeft:
                         "300px",
+
                     padding:
                         "35px",
-                    boxSizing:
-                        "border-box"
+
+                    width:
+                        "100%"
                 }}
             >
 
-                <h1
-                    style={{
-                        color:
-                            "#1b1b78",
-                        fontSize:
-                            "46px"
-                    }}
-                >
+                <h1>
                     Welcome {
-                    storedUser?.username
+                    storedUser
+                        ?.username
                 } 👋
                 </h1>
 
-                <p
-                    style={{
-                        color:
-                            "#666",
-                        marginBottom:
-                            "35px"
-                    }}
-                >
-                    Explore the best destinations
+                <p>
+                    Explore best travel routes
                 </p>
 
-                <div
-                    style={{
-                        display:
-                            "grid",
-
-                        gridTemplateColumns:
-                            "repeat(auto-fit,minmax(240px,1fr))",
-
-                        gap:
-                            "22px",
-
-                        marginBottom:
-                            "40px"
-                    }}
-                >
-
-                    <AnalyticsCard
-                        title="Trips"
-                        value={
-                            analytics.totalTrips
-                        }
-                        icon="🚘"
-                    />
-
-                    <AnalyticsCard
-                        title="Bookings"
-                        value={
-                            analytics.totalBookings
-                        }
-                        icon="📖"
-                    />
-
-                    <AnalyticsCard
-                        title="Feedbacks"
-                        value={
-                            analytics.totalFeedbacks
-                        }
-                        icon="⭐"
-                    />
-
-                    <AnalyticsCard
-                        title="Trending Place"
-                        value={
-                            analytics.mostBookedPlace
-                        }
-                        icon="🔥"
-                    />
-
-                </div>
+                <AnalyticsBoard />
 
                 <input
                     type="text"
 
-                    placeholder="🔍 Search Source or Destination"
+                    placeholder=
+                        "🔍 Search destination"
 
                     value={
                         search
@@ -329,12 +247,11 @@ function UserDashboard() {
                             "repeat(auto-fit,minmax(380px,1fr))",
 
                         gap:
-                            "30px"
+                            "25px"
                     }}
                 >
 
                     {filteredVehicles.map(
-
                         (
                             vehicle
                         ) => (
@@ -353,36 +270,17 @@ function UserDashboard() {
                                     {
                                         vehicle.source
                                     }
-
-                                    {" → "}
-
+                                    →
                                     {
                                         vehicle.destination
                                     }
                                 </h2>
 
                                 <p>
-                                    🚘 {
-                                    vehicle.vehicleType
-                                }
-                                </p>
-
-                                <p>
-                                    📅 {
-                                    vehicle.departureDate
-                                }
-                                </p>
-
-                                <p>
-                                    🕒 {
-                                    vehicle.departureTime
-                                }
-                                </p>
-
-                                <p>
-                                    💰 ₹{
-                                    vehicle.price
-                                }
+                                    ₹
+                                    {
+                                        vehicle.price
+                                    }
                                 </p>
 
                                 <input
@@ -404,9 +302,8 @@ function UserDashboard() {
                                 <input
                                     type="number"
 
-                                    min="1"
-
-                                    placeholder="Family Members"
+                                    placeholder=
+                                        "Family Members"
 
                                     onChange={(e) =>
                                         handleInputChange(
@@ -447,62 +344,32 @@ function UserDashboard() {
     );
 }
 
-function AnalyticsCard({
-                           title,
-                           value,
-                           icon
-                       }) {
-
-    return (
-        <div
-            style={{
-                background:
-                    "white",
-
-                borderRadius:
-                    "22px",
-
-                padding:
-                    "25px"
-            }}
-        >
-            <h3>
-                {icon} {title}
-            </h3>
-
-            <h1>
-                {value}
-            </h1>
-        </div>
-    );
-}
+const searchStyle = {
+    width: "100%",
+    padding: "15px",
+    marginBottom: "30px"
+};
 
 const cardStyle = {
     background: "white",
-    borderRadius: "24px",
-    padding: "28px"
-};
-
-const searchStyle = {
-    width: "100%",
-    padding: "18px",
-    marginBottom: "35px"
+    padding: "25px",
+    borderRadius: "25px"
 };
 
 const inputStyle = {
     width: "100%",
-    padding: "14px",
-    marginTop: "15px"
+    padding: "12px",
+    marginTop: "10px"
 };
 
 const bookBtn = {
     width: "100%",
-    padding: "16px",
-    background: "#1b1b78",
-    border: "none",
+    padding: "15px",
+    background: "#1e2088",
     color: "white",
-    borderRadius: "14px",
-    marginTop: "18px",
+    border: "none",
+    borderRadius: "15px",
+    marginTop: "15px",
     cursor: "pointer"
 };
 
